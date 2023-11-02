@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(150)
+  email      String    @db.VarChar(150)
+  password   String    @db.VarChar(200)
+  balance    Int       @default(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now()) @updatedAt
+  income     Income[]  @relation("income")
+  expense    Expense[] @relation("expense")
+  tracker    Tracker[] @relation("tracker")
+
+  @@map("tb_user")
+}
+
+model Income {
+  id          Int      @id @unique @default(autoincrement())
+  user_id     Int
+  user        User     @relation("income", fields: [user_id], references: [id])
+  description String
+  income      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([user_id])
+  @@map("tb_income")
+}
+
+model Expense {
+  id          Int      @id @unique @default(autoincrement())
+  user_id     Int
+  user        User     @relation("expense", fields: [user_id], references: [id])
+  description String
+  expense     Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([user_id])
+  @@map("tb_expense")
+}
+
+model Tracker {
+  id        Int      @id @unique @default(autoincrement())
+  user_id   Int
+  user      User     @relation("tracker", fields: [user_id], references: [id])
+  status    String
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([user_id])
+  @@map("tb_tracker")
+}
