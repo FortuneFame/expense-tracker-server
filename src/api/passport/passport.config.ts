@@ -2,6 +2,8 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import passport from 'passport';
 import prisma from '../helpers/database';
 
+require('dotenv').config();
+
 declare global {
   namespace Express {
     interface User {
@@ -12,7 +14,7 @@ declare global {
 
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: "jwt-secret-code",
+    secretOrKey: process.env.JWT_SECRET as string,
 };
 
 passport.use(

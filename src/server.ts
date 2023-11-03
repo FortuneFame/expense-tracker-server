@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import routes from "./api/routes";
-import passport from "./api/passport/passport.config";
+import passport from "./api/passport";
 import errorHandlerMiddleware from "./api/helpers/errorHandlerMiddleware";
 
 require('dotenv').config();
@@ -28,8 +28,8 @@ app.get("/", async (req: Request, res: Response) => {
 
 app.use(passport.initialize()); 
 
-app.use(errorHandlerMiddleware)
 routes(app);
+app.use(errorHandlerMiddleware)
 
 
 app.listen(PORT, () => {

@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { NextFunction } from "express";
 import prisma from "../helpers/database";
+import { addToBlacklist } from "../helpers/tokenBlacklist";
+
+require('dotenv').config();
 
 interface UserInput {
   name: string;
@@ -110,7 +113,7 @@ class Auth {
         email: user.email,
       };
 
-      const token = jwt.sign(payload, "jwt-secret-code", { expiresIn: "8h" });
+      const token = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "8h" });
 
       return {
         status: true,
@@ -125,6 +128,20 @@ class Auth {
       next(error);
     }
   }
+  public async logout(token: string, next: NextFunction): Promise<ResponseData | void> {
+  try {
+    addToBlacklist(token);
+    return {
+      status: true,
+      code: 200,
+      message: "Logout successful"
+    };
+  } catch (error) {
+    
+  console.error("Logout auth module Error: ", error);
+    next(error);
+  }
+}
 }
 
 export default new Auth();
