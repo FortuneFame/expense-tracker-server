@@ -13,9 +13,18 @@ UserController.get("/", async (req: Request, res: Response, next: NextFunction) 
   }
 });
 
-UserController.put("/", async (req: Request, res: Response, next: NextFunction) => {
+UserController.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const update = await UserModule.updateUser(req.body, next);
+    const user = await UserModule.getUserById(Number(req.params.id), next);
+    ResponseHelper.sendResponse(res, user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+UserController.patch("/", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const update = await UserModule.updateUser(req.body, req, next);
     ResponseHelper.sendResponse(res, update);
   } catch (error) {
     next(error);

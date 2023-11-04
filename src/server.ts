@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get("/", async (req: Request, res: Response) => {
-  res.status(201).send({
+  res.status(200).send({
     status: true,
     message: "Hello this is API",
   });

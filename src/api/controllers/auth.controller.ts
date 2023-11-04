@@ -36,4 +36,15 @@ AuthController.post("/logout", tokenBlacklistCheck, async (req: Request, res: Re
   ResponseHelper.sendResponse(res, result);
 });
 
+AuthController.get("/current-user", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await AuthModule.getCurrentUser(req,res, next);
+    ResponseHelper.sendResponse(res, user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
 export default AuthController;

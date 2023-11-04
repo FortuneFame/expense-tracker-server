@@ -1,7 +1,8 @@
 import joi from "joi";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
+
 import prisma from "../helpers/database";
 import { addToBlacklist } from "../helpers/tokenBlacklist";
 
@@ -110,6 +111,7 @@ class Auth {
 
       const payload = {
         id: user.id,
+        name: user.name, 
         email: user.email,
       };
 
@@ -139,9 +141,42 @@ class Auth {
   } catch (error) {
     
   console.error("Logout auth module Error: ", error);
+      next(error);
+    }
+  }
+  public async getCurrentUser(req: Request,res:  Response, next: NextFunction): Promise<ResponseData | void> {
+  try {
+    const token: string | undefined = (req.headers["authorization"] as any)?.split(" ")[1];
+    if (!token) {
+      res.status(400).send("Токен отсутствует");
+      return;
+    }
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    
+    const user = await prisma.user.findFirst({
+      where: {
+        id: decoded.id,
+      },
+    });
+
+    if (!user) {
+      return {
+        status: false,
+        code: 404,
+        error: "User not found",
+      };
+    }
+
+    return {
+      status: true,
+      code: 200,
+      data: user,
+    };
+  } catch (error) {
     next(error);
   }
-}
+  } 
 }
 
 export default new Auth();
