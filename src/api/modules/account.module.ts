@@ -85,11 +85,12 @@ class AccountModule {
     }
   }
 
-  static async deleteAccount(id: number, next: NextFunction): Promise<ResponseData | void> {
+    static async deleteAccount(id: number, next: NextFunction): Promise<ResponseData | void> {
     try {
       const accountToDelete = await prisma.account.findUnique({
         where: { id: id },
       });
+
       if (!accountToDelete) {
         return {
           status: false,
@@ -97,7 +98,15 @@ class AccountModule {
           error: "Account not found",
         };
       }
+
+      // Удаляем все связанные с аккаунтом расходы
+      await prisma.expense.deleteMany({
+        where: { account_id: id },
+      });
+
+      // Удаляем аккаунт
       await prisma.account.delete({ where: { id: id } });
+
       return {
         status: true,
         code: 200,

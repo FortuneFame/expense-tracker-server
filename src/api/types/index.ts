@@ -35,6 +35,7 @@ interface ExpenseResponse {
 
 interface CreateExpenseBody {
     user_id: number;
+    account_id: number;
     description: string;
     expense: number;
 };
