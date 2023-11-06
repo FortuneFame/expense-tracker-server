@@ -2,25 +2,6 @@ import Joi from "joi";
 import { NextFunction } from "express";
 import prisma from "../helpers/database";
 
-interface ExpenseResponse {
-    status: boolean;
-    code: number;
-    message?: string;
-    data?: any;
-    error?: string | unknown;
-}
-
-interface CreateExpenseBody {
-    user_id: number;
-    description: string;
-    expense: number;
-}
-
-interface UpdateExpenseBody {
-    description?: string;
-    expense?: number;
-}
-
 class Expense {
     async getExpense(req: { user_id: number }, next: NextFunction): Promise<ExpenseResponse | void> {
         try {
@@ -84,39 +65,41 @@ class Expense {
                 };
             }
 
-            const balanceUser = await prisma.user.findUnique({
+            const userAccounts = await prisma.account.findMany({
                 where: {
-                    id: body.user_id,
+                    user_id: body.user_id,
                 },
             });
 
-            if (!balanceUser) {
+            if (!userAccounts.length) {
                 return {
                     status: false,
                     code: 404,
-                    message: "User not found",
+                    message: "No accounts found for the user",
                 };
             }
 
-            if (balanceUser.balance < body.expense) {
+            const primaryAccount = userAccounts[0];
+            
+            if (primaryAccount.balance < body.expense) {
                 return {
                     status: false,
                     code: 401,
                     message: "Insufficient Balance",
                 };
             }
-
             const addExpense = await prisma.expense.create({
                 data: {
                     user_id: body.user_id,
+                    account_id: primaryAccount.id, 
                     description: body.description,
                     expense: body.expense,
                 },
             });
 
-            await prisma.user.update({
+             await prisma.account.update({
                 where: {
-                    id: body.user_id,
+                    id: primaryAccount.id,
                 },
                 data: {
                     balance: {

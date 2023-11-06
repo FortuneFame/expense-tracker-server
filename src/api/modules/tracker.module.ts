@@ -1,17 +1,6 @@
 import { NextFunction } from 'express';
 import prisma from '../helpers/database';
 
-interface TrackerRequestBody {
-  id: number;
-}
-
-interface TrackerResponse {
-  status: boolean;
-  code: number;
-  message?: string;
-  data?: any;
-  error?: string | unknown;
-}
 
 class Tracker {
     async getTracker(body: TrackerRequestBody, next: NextFunction): Promise<TrackerResponse | void> {

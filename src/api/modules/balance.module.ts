@@ -1,45 +1,40 @@
-import prisma from "../helpers/database";
 import { NextFunction } from "express";
-
-interface BalanceResponse {
-  status: boolean;
-  code?: number;
-  message?: string;
-  data?: any;
-  error?: string | unknown;
-}
+import prisma from "../helpers/database";
 
 interface Body {
   id: number;
-}
+};
 
 class Balance {
   public async getBalance(body: Body, next: NextFunction): Promise<BalanceResponse | void> {
     try {
-      const uBalance = await prisma.user.findUnique({
+      const accounts = await prisma.account.findMany({
         where: {
-          id: body.id,
+          user_id: body.id,
         },
         select: {
-          name: true,
           balance: true,
         },
       });
-
-      console.log("module balance", uBalance);
-      if (!uBalance) {
+      
+      console.log("module accounts", accounts);
+      if (!accounts.length) {
         return {
           status: false,
           code: 404,
-          message: "User not found",
+          message: "User not found or no accounts available",
         };
       }
-
+      
+      const totalBalance = accounts.reduce((acc, account) => acc + account.balance, 0);
+      
       return {
         status: true,
         code: 200,
-        message: "Data Balance",
-        data: uBalance,
+        message: "Total Balance",
+        data: {
+          totalBalance: totalBalance,
+        },
       };
     } catch (error) {
       console.log("Get Balance module Error :", error);

@@ -8,25 +8,6 @@ import { addToBlacklist } from "../helpers/tokenBlacklist";
 
 require('dotenv').config();
 
-interface UserInput {
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface ResponseData {
-  status: boolean;
-  code?: number;
-  message?: string;
-  data?: any;
-  error?: string | unknown;
-}
-
 class Auth {
   public async register(body: UserInput, next: NextFunction): Promise<ResponseData | void> {
     try {
@@ -75,7 +56,7 @@ class Auth {
         email: joi.string().required(),
         password: joi.string().required(),
       });
-      
+    
       const validation = schema.validate(body);
 
       if (validation.error) {
@@ -111,7 +92,7 @@ class Auth {
 
       const payload = {
         id: user.id,
-        name: user.name, 
+        name: user.name,
         email: user.email,
       };
 
@@ -131,52 +112,57 @@ class Auth {
     }
   }
   public async logout(token: string, next: NextFunction): Promise<ResponseData | void> {
-  try {
-    addToBlacklist(token);
-    return {
-      status: true,
-      code: 200,
-      message: "Logout successful"
-    };
-  } catch (error) {
-    
-  console.error("Logout auth module Error: ", error);
+    try {
+      addToBlacklist(token);
+      return {
+        status: true,
+        code: 200,
+        message: "Logout successful"
+      };
+    } catch (error) {
+  
+      console.error("Logout auth module Error: ", error);
       next(error);
     }
   }
-  public async getCurrentUser(req: Request,res:  Response, next: NextFunction): Promise<ResponseData | void> {
-  try {
-    const token: string | undefined = (req.headers["authorization"] as any)?.split(" ")[1];
-    if (!token) {
-      res.status(400).send("Токен отсутствует");
+  public async getCurrentUser(req: Request, res: Response, next: NextFunction): Promise<ResponseData | void> {
+    try {
+      const token: string | undefined = (req.headers["authorization"] as any)?.split(" ")[1];
+      if (!token) {
+        res.status(400).send("No token");
+        return;
+      }
+
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+  
+      const user = await prisma.user.findFirst({
+        where: {
+          id: decoded.id,
+        },
+      });
+
+      if (!user) {
+        return {
+          status: false,
+          code: 404,
+          error: "User not found",
+        };
+      }
+
+      return {
+        status: true,
+        code: 200,
+        data: user,
+      };
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        res.status(401).send({ message: "Token has expired", redirectTo: "/" });
+        return;
+      }
+      next(new Error("No token"));
       return;
     }
-
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-    
-    const user = await prisma.user.findFirst({
-      where: {
-        id: decoded.id,
-      },
-    });
-
-    if (!user) {
-      return {
-        status: false,
-        code: 404,
-        error: "User not found",
-      };
-    }
-
-    return {
-      status: true,
-      code: 200,
-      data: user,
-    };
-  } catch (error) {
-    next(error);
   }
-  } 
 }
 
 export default new Auth();

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import passport from 'passport';
 import BalanceModule from '../modules/balance.module';
 import ResponseHelper from '../helpers/response';
+import passport from '../passport/passport.config';
 
 const BalanceController: Router = Router();
 

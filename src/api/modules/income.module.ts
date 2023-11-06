@@ -2,18 +2,6 @@ import Joi from 'joi';
 import { NextFunction } from 'express';
 import prisma from '../helpers/database';
 
-interface CustomRequest {
-  user_id: number;
-}
-
-interface IncomeResponse {
-  status: boolean;
-  code: number;
-  message?: string;
-  data?: any;
-  error?: string | unknown;
-}
-
 class Income {
 
     async getIncome(req: CustomRequest, next: NextFunction): Promise<IncomeResponse | void> {
@@ -45,9 +33,7 @@ class Income {
                     income: true,
                 },
                 where: {
-                    user: {
-                        id: body.id,
-                    },
+                    user_id: body.id,
                 },
             });
             console.log("Sum", income);
@@ -63,7 +49,7 @@ class Income {
         }
     }
 
-    async createIncome(body: { user_id: number; description: string; income: number }, next: NextFunction): Promise<IncomeResponse | void> {
+    async createIncome(body: { user_id: number; description: string; account_id: number; income: number }, next: NextFunction): Promise<IncomeResponse | void> {
         try {
             const schema = Joi.object({
                 user_id: Joi.number().required(),
@@ -72,12 +58,12 @@ class Income {
             }).options({ abortEarly: false });
 
             const validation = schema.validate(body);
-
-            const balanceUser = await prisma.user.findUnique({
+            const userAccounts = await prisma.account.findMany({
                 where: {
-                    id: body.user_id,
+                    user_id: body.user_id,
                 },
             });
+            const primaryAccount = userAccounts[0];
 
             if (validation.error) {
                 const errorDetails = validation.error.details.map(
@@ -91,7 +77,7 @@ class Income {
                 };
             }
 
-            if (!balanceUser) {
+            if (!userAccounts) {
                 return {
                     status: false,
                     code: 404,
@@ -102,6 +88,7 @@ class Income {
             const add = await prisma.income.create({
                 data: {
                     user_id: body.user_id,
+                    account_id: body.account_id,
                     description: body.description,
                     income: body.income,
                 },
@@ -115,15 +102,16 @@ class Income {
                 },
             });
 
-            const update = await prisma.user.update({
+            await prisma.account.update({
                 where: {
-                    id: body.user_id,
+                    id: primaryAccount.id,
                 },
                 data: {
-                    balance: balanceUser.balance + body.income,
+                    balance: {
+                        increment: body.income,
+                    },
                 },
             });
-            console.log("update", update);
 
             return {
                 status: true,
@@ -180,6 +168,6 @@ class Income {
             next(error);
         }
     }
-}
+};
 
 export default new Income();

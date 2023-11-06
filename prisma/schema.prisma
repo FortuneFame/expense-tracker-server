@@ -16,39 +16,61 @@ model User {
   name       String    @db.VarChar(150)
   email      String    @unique @db.VarChar(150)
   password   String    @db.VarChar(200)
-  balance    Int       @default(0)
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now()) @updatedAt
-  income     Income[]  @relation("income")
-  expense    Expense[] @relation("expense")
-  tracker    Tracker[] @relation("tracker")
+  accounts   Account[]
+  trackers   Tracker[] @relation("tracker")
+  Income     Income[]
+  Expense    Expense[]
 
   @@map("tb_user")
+}
+
+model Account {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  user      User     @relation(fields: [user_id], references: [id])
+  name      String   @db.VarChar(150)
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  incomes  Income[]  @relation("accountIncome")
+  expenses Expense[] @relation("accountExpense")
+
+  @@index([user_id])
+  @@map("tb_account")
 }
 
 model Income {
   id          Int      @id @unique @default(autoincrement())
   user_id     Int
-  user        User     @relation("income", fields: [user_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id])
+  account_id  Int
+  account     Account  @relation("accountIncome", fields: [account_id], references: [id])
   description String
   income      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([user_id])
+  @@index([account_id])
   @@map("tb_income")
 }
 
 model Expense {
   id          Int      @id @unique @default(autoincrement())
   user_id     Int
-  user        User     @relation("expense", fields: [user_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id])
+  account_id  Int
+  account     Account  @relation("accountExpense", fields: [account_id], references: [id])
   description String
   expense     Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([user_id])
+  @@index([account_id])
   @@map("tb_expense")
 }
 

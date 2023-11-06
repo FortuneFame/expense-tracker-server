@@ -5,10 +5,12 @@ import IncomeController from "../controllers/income.controller";
 import ExpenseController from "../controllers/expense.controller";
 import BalanceController from "../controllers/balance.controller";
 import TrackerController from "../controllers/tracker.controller";
+import AccountController from "../controllers/account.controller";
 
 const Routes: [string, Router][] = [
   ['users', UserController],
   ['', AuthController],
+  ['account', AccountController],
   ['income', IncomeController],
   ['expense', ExpenseController],
   ['balance', BalanceController],

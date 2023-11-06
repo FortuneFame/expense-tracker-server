@@ -3,23 +3,6 @@ import bcrypt from "bcrypt";
 import { NextFunction, Request } from "express";
 import prisma from "../helpers/database";
 
-interface UserUpdateBody {
-  id: number;
-  name?: string;
-  email?: string;
-    password?: string;
-  confirmPassword?: string; 
-    
-}
-
-interface UserResponse {
-  status: boolean;
-  code: number;
-  message?: string;
-  data?: any;
-  error?: string | unknown;
-}
-
 class User {
     async listUser(next: NextFunction): Promise<UserResponse | void> {
         try {
