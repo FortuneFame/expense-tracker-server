@@ -58,17 +58,6 @@ interface IncomeResponse {
 };
 
 
-interface TrackerRequestBody {
-    id: number;
-};
-
-interface TrackerResponse {
-    status: boolean;
-    code: number;
-    message?: string;
-    data?: any;
-    error?: string | unknown;
-};
 
 interface UserUpdateBody {
     id: number;
@@ -85,3 +74,67 @@ interface UserResponse {
     data?: any;
     error?: string | unknown;
 };
+
+interface TrackerRequestBody {
+  id: number; 
+
+}
+
+interface TrackerResponse {
+  status: boolean; 
+  code: number;    
+  message: string; 
+  data: any;       
+}
+
+// interface TrackerRequestBody {
+//     id: number;
+// };
+
+// interface TrackerResponse {
+//     status: boolean;
+//     code: number;
+//     message?: string;
+//     data?: any;
+//     error?: string | unknown;
+// };
+
+
+interface TransactionResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data?: any; 
+}
+
+interface AccountReference {
+  id: number;
+  name: string;
+}
+
+interface Income {
+  id: number;
+  description: string;
+  amount: number; // This should match the name of the field in the database if it's different than `income`.
+  createdAt: Date;
+  account: AccountReference;
+}
+
+interface Expense {
+  id: number;
+  description: string;
+  amount: number; // This should match the name of the field in the database if it's different than `expense`.
+  createdAt: Date;
+  account: AccountReference;
+}
+
+interface AccountSummaryResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: {
+    incomes: Income[];
+    expenses: Expense[];
+  };
+  error?: string | unknown;
+}

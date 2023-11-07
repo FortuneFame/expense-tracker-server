@@ -6,6 +6,14 @@ import ResponseHelper from '../helpers/response';
 
 const AccountController: Router = Router();
 
+const getNumericRouteParam = (req: Request, res: Response, next: NextFunction, value: string, name: string) => {
+  if (/\D/.test(value)) { 
+    res.status(400).send(`Invalid ${name} parameter: Expected a number`);
+  } else {
+    next();
+  }
+};
+
 AccountController.get('/', passport.authenticate('jwt', { session: false }), async (req: Request, res: Response, next: NextFunction) => {
   console.log("GET /account");
   try {
@@ -16,6 +24,7 @@ AccountController.get('/', passport.authenticate('jwt', { session: false }), asy
     next(error);
   }
 });
+
 
 AccountController.post('/', passport.authenticate('jwt', { session: false }), async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -46,4 +55,17 @@ AccountController.delete('/:id', passport.authenticate('jwt', { session: false }
     next(error);
   }
 });
+
+AccountController.param('id', getNumericRouteParam);
+
+AccountController.get('/:id/summary', passport.authenticate('jwt', { session: false }), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user_id = Number(req.params.id); 
+    const accountSummary = await AccountModule.getAccountSummary(user_id, next);
+    ResponseHelper.sendResponse(res, accountSummary);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default AccountController;
