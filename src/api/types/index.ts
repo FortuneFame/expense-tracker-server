@@ -87,19 +87,6 @@ interface TrackerResponse {
   data: any;       
 }
 
-// interface TrackerRequestBody {
-//     id: number;
-// };
-
-// interface TrackerResponse {
-//     status: boolean;
-//     code: number;
-//     message?: string;
-//     data?: any;
-//     error?: string | unknown;
-// };
-
-
 interface TransactionResponse {
   status: boolean;
   code: number;
@@ -115,7 +102,7 @@ interface AccountReference {
 interface Income {
   id: number;
   description: string;
-  amount: number; // This should match the name of the field in the database if it's different than `income`.
+  amount: number;
   createdAt: Date;
   account: AccountReference;
 }
@@ -123,7 +110,7 @@ interface Income {
 interface Expense {
   id: number;
   description: string;
-  amount: number; // This should match the name of the field in the database if it's different than `expense`.
+  amount: number; 
   createdAt: Date;
   account: AccountReference;
 }
@@ -137,4 +124,15 @@ interface AccountSummaryResponse {
     expenses: Expense[];
   };
   error?: string | unknown;
+}
+
+type ExpenseData = {
+  description?: string;
+  expense?: number;
+  account_id: number;
+};
+
+interface ExpenseUpdateBody {
+  description?: string;
+  expense?: number;
 }

@@ -5,8 +5,6 @@ import IncomeController from "../controllers/income.controller";
 import ExpenseController from "../controllers/expense.controller";
 import BalanceController from "../controllers/balance.controller";
 import AccountController from "../controllers/account.controller";
-// import TrackerController from "../controllers/tracker.controller";
-// import TransactionHistoryController from "../controllers/transaction.controller";
 
 const Routes: [string, Router][] = [
   ['users', UserController],
@@ -15,8 +13,6 @@ const Routes: [string, Router][] = [
   ['income', IncomeController],
   ['expense', ExpenseController],
   ['balance', BalanceController],
-  // ['transaction', TransactionHistoryController],
-  // ['tracker', TrackerController],
 ];
 
 const routes = (app: Express) => {
