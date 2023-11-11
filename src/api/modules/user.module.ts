@@ -95,6 +95,17 @@ class User {
                 };
             }
 
+            const userAccounts = await prisma.account.findMany({
+                where: { user_id: id },
+                select: { id: true }
+            });
+
+            for (const account of userAccounts) {
+                await prisma.income.deleteMany({ where: { account_id: account.id } });
+                await prisma.expense.deleteMany({ where: { account_id: account.id } });
+                await prisma.account.delete({ where: { id: account.id } });
+            };
+
             const del = await prisma.user.delete({
                 where: {
                     id: id,
@@ -139,6 +150,6 @@ class User {
             next(error);
         }
     }
-}
+};
 
 export default new User();

@@ -19,7 +19,6 @@ model User {
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now()) @updatedAt
   accounts   Account[]
-  trackers   Tracker[] @relation("tracker")
   Income     Income[]
   Expense    Expense[]
 
@@ -77,7 +76,6 @@ model Expense {
 model Tracker {
   id        Int      @id @unique @default(autoincrement())
   user_id   Int
-  user      User     @relation("tracker", fields: [user_id], references: [id])
   status    String
   balance   Int      @default(0)
   createdAt DateTime @default(now())
